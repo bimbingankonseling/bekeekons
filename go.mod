@@ -1,4 +1,4 @@
-module github.com/serbaevents/backendSE
+module github.com/bimbingankonseling/bekeekons
 
 go 1.20
 

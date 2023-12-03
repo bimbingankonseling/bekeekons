@@ -136,12 +136,13 @@ func TestInsertReservasi(t *testing.T) {
 	// if payload.Role != "mitra" {
 	// 	t.Errorf("Error role: %v", err)
 	// }
-	var datatiket model.Tiket
-	datatiket.TujuanEvent = "Event Coldplay 5 Jakarta"
-	datatiket.Jemputan = "Terminal Bus Jakarta"
-	datatiket.Keterangan = "Jemputan 15:00"
-	datatiket.Harga = "Rp 120.000"
-	err = module.InsertTiket(payload.Id, conn, datatiket)
+	var datatiket model.Reservasi
+	datatiket.Nama = "Bella"
+	datatiket.Notelp = "6287815683284"
+	datatiket.TTL = "25 Mei 2003"
+	datatiket.Status = "Mahasiswa"
+	datatiket.Keluhan = "Cape"
+	err = module.InsertReservasi(payload.Id, conn, datatiket)
 	if err != nil {
 		t.Errorf("Error insert : %v", err)
 	} else {
@@ -149,26 +150,25 @@ func TestInsertReservasi(t *testing.T) {
 	}
 }
 
-func TestUpdateTiket(t *testing.T) {
-	conn := module.MongoConnect("MONGOSTRING", "serbaevent_db")
+func TestUpdateReservasi(t *testing.T) {
+	conn := module.MongoConnect("MONGOSTRING", "keekons")
 	payload, err := module.Decode("fca3dbba6c382d6e937d33837f7428c1211e01a9928cbbbc0b86bb8351c02407", "v4.public.eyJleHAiOiIyMDIzLTEyLTAxVDE4OjU4OjE1KzA4OjAwIiwiaWF0IjoiMjAyMy0xMi0wMVQxNjo1ODoxNSswODowMCIsImlkIjoiNjU1YzNiOWExZDY1MjRmMmYxMjAwZmM2IiwibmJmIjoiMjAyMy0xMi0wMVQxNjo1ODoxNSswODowMCIsInJvbGUiOiJwZW5nZ3VuYSJ9GIKgKcp8gj4lzPH_NFvpx3GR2kBZ2qsDquYMKQdQ1PFpvHKlDy-FeO1umIGCaMuYyACP5jd-Y0at1WCOrsNRCA")
 	if err != nil {
 		t.Errorf("Error decode token: %v", err)
 	}
-	if payload.Role != "admin" {
-		t.Errorf("Error role: %v", err)
-	}
-	var datatiket model.Tiket
-	datatiket.TujuanEvent = "Event Coldplay 3 surabaya"
-	datatiket.Jemputan = "Terminal bus surabaya "
-	datatiket.Keterangan = "jam jemputan 13:00"
-	datatiket.Harga = "Rp 100.000"
+	
+	var datatiket model.Reservasi
+	datatiket.Nama = "Bela"
+	datatiket.Notelp = "6287815683284"
+	datatiket.TTL = "25 Mei 2003"
+	datatiket.Status = "Mahasiswa"
+	datatiket.Keluhan = "Cape Banget"
 	id := "6569a53d783c6970079a560b"
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		t.Fatalf("error converting id to objectID: %v", err)
 	}
-	err = module.UpdateTiket(objectId, payload.Id, conn, datatiket)
+	err = module.UpdateReservasi(objectId, payload.Id, conn, datatiket)
 	if err != nil {
 		t.Errorf("Error update : %v", err)
 	} else {
@@ -176,21 +176,18 @@ func TestUpdateTiket(t *testing.T) {
 	}
 }
 
-func TestDeleteTiket(t *testing.T) {
-	conn := module.MongoConnect("MONGOSTRING", "serbaevent_db")
+func TestDeleteReservasi(t *testing.T) {
+	conn := module.MongoConnect("MONGOSTRING", "keekons")
 	payload, err := module.Decode("fca3dbba6c382d6e937d33837f7428c1211e01a9928cbbbc0b86bb8351c02407", "v4.public.eyJleHAiOiIyMDIzLTEyLTAxVDE4OjU4OjE1KzA4OjAwIiwiaWF0IjoiMjAyMy0xMi0wMVQxNjo1ODoxNSswODowMCIsImlkIjoiNjU1YzNiOWExZDY1MjRmMmYxMjAwZmM2IiwibmJmIjoiMjAyMy0xMi0wMVQxNjo1ODoxNSswODowMCIsInJvbGUiOiJwZW5nZ3VuYSJ9GIKgKcp8gj4lzPH_NFvpx3GR2kBZ2qsDquYMKQdQ1PFpvHKlDy-FeO1umIGCaMuYyACP5jd-Y0at1WCOrsNRCA")
 	if err != nil {
 		t.Errorf("Error decode token: %v", err)
 	}
-	// if payload.Role != "mitra" {
-	// 	t.Errorf("Error role: %v", err)
-	// }
 	id := "6569a53d783c6970079a560b"
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		t.Fatalf("error converting id to objectID: %v", err)
 	}
-	err = module.DeleteTiket(objectId, payload.Id, conn)
+	err = module.DeleteReservasi(objectId, payload.Id, conn)
 	if err != nil {
 		t.Errorf("Error delete : %v", err)
 	} else {
@@ -198,9 +195,9 @@ func TestDeleteTiket(t *testing.T) {
 	}
 }
 
-func TestGetAllTiket(t *testing.T) {
-	conn := module.MongoConnect("MONGOSTRING", "serbaevent_db")
-	data, err := module.GetAllTiket(conn)
+func TestGetAllReservasi(t *testing.T) {
+	conn := module.MongoConnect("MONGOSTRING", "keekons")
+	data, err := module.GetAllReservasi(conn)
 	if err != nil {
 		t.Errorf("Error get all : %v", err)
 	} else {
@@ -208,46 +205,17 @@ func TestGetAllTiket(t *testing.T) {
 	}
 }
 
-func TestGetTiketFromID(t *testing.T) {
-	conn := module.MongoConnect("MONGOSTRING", "serbaevent_db")
+func TestGetReservasiFromID(t *testing.T) {
+	conn := module.MongoConnect("MONGOSTRING", "keekons")
 	id := "6569a025a943657839880661"
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		t.Fatalf("error converting id to objectID: %v", err)
 	}
-	tiket, err := module.GetTiketFromID(objectId, conn)
+	reservasi, err := module.GetReservasiFromID(objectId, conn)
 	if err != nil {
 		t.Errorf("Error get Tiket : %v", err)
 	} else {
-		fmt.Println(tiket)
+		fmt.Println(reservasi)
 	}
-}
-
-// order
-func TestGetOrderFromID(t *testing.T) {
-	conn := module.MongoConnect("MONGOSTRING", "serbaevent_db")
-	id := "6569a027a943657839880669"
-	objectId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		t.Fatalf("error converting id to objectID: %v", err)
-	}
-	order, err := module.GetOrderFromID(objectId, conn)
-	if err != nil {
-		t.Errorf("Error get order : %v", err)
-	} else {
-		fmt.Println(order)
-	}
-}
-
-func TestReturnStruct(t *testing.T) {
-	id := "11b98454e034f3045021a8aa8eb84280"
-	objectId, _ := primitive.ObjectIDFromHex(id)
-	user, _ := module.GetUserFromID(objectId, db)
-	data := model.User{
-		ID:    user.ID,
-		Email: user.Email,
-		Role:  user.Role,
-	}
-	hasil := module.GCFReturnStruct(data)
-	fmt.Println(hasil)
 }
