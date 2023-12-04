@@ -2,8 +2,8 @@ package model
 
 import (
 
-	"Time"
-	
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
