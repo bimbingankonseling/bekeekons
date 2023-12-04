@@ -86,12 +86,7 @@ func SignUpRegistrasi(db *mongo.Database, insertedDoc model.Registrasi) error {
 	if insertedDoc.NamaLengkap == "" || insertedDoc.NomorHP == "" || insertedDoc.TanggalLahir == "" || insertedDoc.Alamat == "" || insertedDoc.NIM == "" {
 		return fmt.Errorf("Dimohon untuk melengkapi data")
 	} 
-	hashedPassword := argon2.IDKey([]byte(insertedDoc.Akun.Password))
-	user := bson.M{
-		"_id": objectId,
-		"username": insertedDoc.Akun.Email,
-		"password": hex.EncodeToString(hashedPassword),
-	}
+	
 	registrasi := bson.M{
 		"namalengkap": insertedDoc.NamaLengkap,
 		"nomorhp": insertedDoc.NomorHP,
