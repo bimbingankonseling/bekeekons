@@ -11,6 +11,7 @@ import (
 
 	"github.com/bimbingankonseling/bekeekons/model"
 	"github.com/badoux/checkmail"
+	"github.com/aiteung/atdb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -81,42 +82,19 @@ func DeleteOneDoc(_id primitive.ObjectID, db *mongo.Database, col string) error 
 }
 
 // login
-func GCFPostHandler(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	var Response Credential
-	Response.Status = false
-	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	var datauser User
-	err := json.NewDecoder(r.Body).Decode(&datauser)
-	if err != nil {
-		Response.Message = "error parsing application/json: " + err.Error()
-	} else {
-		if IsPasswordValid(mconn, collectionname, datauser) {
-			Response.Status = true
-			tokenstring, err := watoken.Encode(datauser.Username, os.Getenv(PASETOPRIVATEKEYENV))
-			if err != nil {
-				Response.Message = "Gagal Encode Token : " + err.Error()
-			} else {
-				Response.Message = "Selamat Datang"
-				Response.Token = tokenstring
-			}
-		} else {
-			Response.Message = "Password Salah"
-		}
+func SetConnection(MONGOCONNSTRINGENV, dbname string) *mongo.Database {
+	var DBmongoinfo = atdb.DBInfo{
+		// DBString: "mongodb+srv://admin:admin@projectexp.pa7k8.gcp.mongodb.net", //os.Getenv(MONGOCONNSTRINGENV),
+		DBString: os.Getenv(MONGOCONNSTRINGENV),
+		DBName:   dbname,
 	}
-
-	return GCFReturnStruct(Response)
+	return atdb.MongoConnect(DBmongoinfo)
 }
 
-func GCFReturnStruct(DataStuct any) string {
-	jsondata, _ := json.Marshal(DataStuct)
-	return string(jsondata)
-}
-
-func InsertUser(db *mongo.Database, collection string, userdata User) string {
-	hash, _ := HashPassword(userdata.Password)
-	userdata.Password = hash
-	atdb.InsertOneDoc(db, collection, userdata)
-	return "Ini username : " + userdata.Username + "ini password : " + userdata.Password
+func IsPasswordValid(mongoconn *mongo.Database, collection string, userdata Username) bool {
+	filter := bson.M{"username": userdata.Username}
+	res := atdb.GetOneDoc[Username](mongoconn, collection, filter)
+	return CheckPasswordHash(userdata.Password, res.Password)
 }
 
 //Reservasi
@@ -174,20 +152,6 @@ func DeleteReservasi(idparam, iduser primitive.ObjectID, db *mongo.Database) err
 		return err
 	}
 	return nil
-}
-
-func GetAllReservasi(db *mongo.Database) (tiket []model.Reservasi, err error) {
-	collection := db.Collection("reservasi")
-	filter := bson.M{}
-	cursor, err := collection.Find(context.TODO(), filter)
-	if err != nil {
-		return reservasi, fmt.Errorf("error GetAllReservasi mongo: %s", err)
-	}
-	err = cursor.All(context.TODO(), &tiket)
-	if err != nil {
-		return reservasi, fmt.Errorf("error GetAllReservasi context: %s", err)
-	}
-	return reservasi, nil
 }
 
 
