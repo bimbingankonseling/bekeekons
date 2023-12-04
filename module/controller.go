@@ -2,12 +2,12 @@ package module
 
 import (
 	"context"
-	"crypto/rand"
+	// "crypto/rand"
 	"encoding/hex"
-	"errors"
+	// "errors"
 	"fmt"
 	"os"
-	"strings"
+	// "strings"
 
 	"github.com/bimbingankonseling/bekeekons/model"
 	"github.com/badoux/checkmail"
@@ -123,6 +123,23 @@ func LogIn(db *mongo.Database, insertedDoc model.User) (user model.User, err err
 		return user, fmt.Errorf("password salah")
 	}
 	return existsDoc, nil
+}
+
+func IDKey(password, salt []byte, time, memory uint32, threads uint8, keyLen uint32) []byte {
+	return deriveKey(argon2id, password, salt, nil, nil, time, memory, threads, keyLen)
+}
+
+func GetUserFromEmail(email string, db *mongo.Database) (doc model.User, err error) {
+	collection := db.Collection("user")
+	filter := bson.M{"email": email}
+	err = collection.FindOne(context.TODO(), filter).Decode(&doc)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return doc, fmt.Errorf("email tidak ditemukan")
+		}
+		return doc, fmt.Errorf("kesalahan server")
+	}
+	return doc, nil
 }
 
 //Reservasi

@@ -17,7 +17,7 @@ var (
 	user model.User
 	registrasi model.Registrasi
 	reservasi model.Reservasi
-
+	
 )
 
 
