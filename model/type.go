@@ -11,6 +11,7 @@ type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	Username string             `bson:"Username,omitempty" json:"Username,omitempty"`
 	Password string             `bson:"password,omitempty" json:"password,omitempty"`
+	Role     string             `bson:"role,omitempty" json:"role,omitempty"`
 }
 
 type Registrasi struct {
