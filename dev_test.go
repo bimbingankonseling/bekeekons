@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/bimbingankonseling/bekeekons/model"
+	"github.com/bimbingankonseling/bekeekons/module"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/argon2"

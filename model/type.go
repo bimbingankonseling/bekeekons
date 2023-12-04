@@ -2,6 +2,8 @@ package model
 
 import (
 
+	"Time"
+	
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -47,4 +49,10 @@ type Credential struct {
 	Data    User   `bson:"data,omitempty" json:"data,omitempty"`
 }
 
-
+type Payload struct {
+	Id   primitive.ObjectID `json:"id"`
+	Role string             `json:"role"`
+	Exp  time.Time          `json:"exp"`
+	Iat  time.Time          `json:"iat"`
+	Nbf  time.Time          `json:"nbf"`
+}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bimbingankonseling/bekeekons/model"
 	"aidanwoods.dev/go-paseto"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
