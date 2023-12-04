@@ -81,29 +81,29 @@ func DeleteOneDoc(_id primitive.ObjectID, db *mongo.Database, col string) error 
 }
 
 // signup
-func SignUpRegistrasi(db *mongo.Database, insertedDoc model.Registrasi) error {
-	objectId := primitive.NewObjectID() 
-	if insertedDoc.NamaLengkap == "" || insertedDoc.NomorHP == "" || insertedDoc.TanggalLahir == "" || insertedDoc.Alamat == "" || insertedDoc.NIM == "" {
-		return fmt.Errorf("Dimohon untuk melengkapi data")
-	} 
+// func SignUpRegistrasi(db *mongo.Database, insertedDoc model.Registrasi) error {
+// 	objectId := primitive.NewObjectID() 
+// 	if insertedDoc.NamaLengkap == "" || insertedDoc.NomorHP == "" || insertedDoc.TanggalLahir == "" || insertedDoc.Alamat == "" || insertedDoc.NIM == "" {
+// 		return fmt.Errorf("Dimohon untuk melengkapi data")
+// 	} 
 	
-	registrasi := bson.M{
-		"namalengkap": insertedDoc.NamaLengkap,
-		"nomorhp": insertedDoc.NomorHP,
-		"tanggallahir": insertedDoc.TanggalLahir,
-		"alamat": insertedDoc.Alamat,
-		"nim": insertedDoc.NIM,
-	}
-	_, err = InsertOneDoc(db, "user", user)
-	if err != nil {
-		return fmt.Errorf("kesalahan server")
-	}
-	_, err = InsertOneDoc(db, "registrasi", registrasi)
-	if err != nil {
-		return fmt.Errorf("kesalahan server")
-	}
-	return nil
-}
+// 	registrasi := bson.M{
+// 		"namalengkap": insertedDoc.NamaLengkap,
+// 		"nomorhp": insertedDoc.NomorHP,
+// 		"tanggallahir": insertedDoc.TanggalLahir,
+// 		"alamat": insertedDoc.Alamat,
+// 		"nim": insertedDoc.NIM,
+// 	}
+// 	_, err = InsertOneDoc(db, "user", user)
+// 	if err != nil {
+// 		return fmt.Errorf("kesalahan server")
+// 	}
+// 	_, err = InsertOneDoc(db, "registrasi", registrasi)
+// 	if err != nil {
+// 		return fmt.Errorf("kesalahan server")
+// 	}
+// 	return nil
+// }
 
 // login
 func LogIn(db *mongo.Database, insertedDoc model.User) (user model.User, err error) {

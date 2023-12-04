@@ -22,25 +22,25 @@ var (
 
 
 // signup
-func GCFHandlerSignUpRegistrasi(MONGOCONNSTRINGENV, dbname string, r *http.Request) string {
-	conn := MongoConnect(MONGOCONNSTRINGENV, dbname)
-	var Response model.Response
-	Response.Status = false
-	var datapengguna model.Registrasi
-	err := json.NewDecoder(r.Body).Decode(&datapengguna)
-	if err != nil {
-		Response.Message = "error parsing application/json: " + err.Error()
-		return GCFReturnStruct(Response)
-	}
-	err = SignUpRegistrasi(conn, datapengguna)
-	if err != nil {
-		Response.Message = err.Error()
-		return GCFReturnStruct(Response)
-	}
-	Response.Status = true
-	Response.Message = "Halo " + datapengguna.NamaLengkap
-	return GCFReturnStruct(Response)
-}
+// func GCFHandlerSignUpRegistrasi(MONGOCONNSTRINGENV, dbname string, r *http.Request) string {
+// 	conn := MongoConnect(MONGOCONNSTRINGENV, dbname)
+// 	var Response model.Response
+// 	Response.Status = false
+// 	var datapengguna model.Registrasi
+// 	err := json.NewDecoder(r.Body).Decode(&datapengguna)
+// 	if err != nil {
+// 		Response.Message = "error parsing application/json: " + err.Error()
+// 		return GCFReturnStruct(Response)
+// 	}
+// 	err = SignUpRegistrasi(conn, datapengguna)
+// 	if err != nil {
+// 		Response.Message = err.Error()
+// 		return GCFReturnStruct(Response)
+// 	}
+// 	Response.Status = true
+// 	Response.Message = "Halo " + datapengguna.NamaLengkap
+// 	return GCFReturnStruct(Response)
+// }
 
 // login
 func GCFHandlerLogin(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname string, r *http.Request) string {
@@ -63,9 +63,9 @@ func GCFHandlerLogin(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname string, r *
 	if err != nil {
 		Response.Message = "Gagal Encode Token : " + err.Error()
 	} else {
-		Response.Message = "Selamat Datang " + user.Email
+		Response.Message = "Selamat Datang " + user.Username
 		Response.Token = tokenstring
-		Response.Role = user.Role
+		Response.Role = user.Status
 	}
 	return GCFReturnStruct(Response)
 }
