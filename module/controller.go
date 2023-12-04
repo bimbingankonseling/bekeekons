@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"golang.org/x/crypto/bcrypt"
 	"github.com/bimbingankonseling/bekeekons/model"
 	"github.com/badoux/checkmail"
 	"github.com/aiteung/atdb"
@@ -91,10 +92,20 @@ func SetConnection(MONGOCONNSTRINGENV, dbname string) *mongo.Database {
 	return atdb.MongoConnect(DBmongoinfo)
 }
 
-func IsPasswordValid(mongoconn *mongo.Database, collection string, userdata Username) bool {
-	filter := bson.M{"username": userdata.Username}
-	res := atdb.GetOneDoc[Username](mongoconn, collection, filter)
+func IsPasswordValid(mongoconn *mongo.Database, collection string, userdata User) bool {
+	filter := bson.M{"username": userdata.User}
+	res := atdb.GetOneDoc[User](mongoconn, collection, filter)
 	return CheckPasswordHash(userdata.Password, res.Password)
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
 
 //Reservasi
