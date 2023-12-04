@@ -48,7 +48,7 @@ func GCFReturnStruct(DataStuct any) string {
 	return string(jsondata)
 }
 
-func InsertUser(db *mongo.Database, collection string, userdata Username) string {
+func InsertUser(db *mongo.Database, collection string, userdata User) string {
 	hash, _ := HashPassword(userdata.Password)
 	userdata.Password = hash
 	atdb.InsertOneDoc(db, collection, userdata)
