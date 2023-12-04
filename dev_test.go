@@ -1,4 +1,4 @@
-package HealHero
+package pasetokee
 
 import (
 	"crypto/rand"
@@ -16,19 +16,63 @@ import (
 
 var db = module.MongoConnect("MONGOSTRING", "keekons")
 
-func TestGetUserFromEmail(t *testing.T) {
-	username := "ardvprw"
-	hasil, err := module.GetUserFromEmail(username, db)
-	if err != nil {
-		t.Errorf("Error TestGetUserFromEmail: %v", err)
-	} else {
-		fmt.Println(hasil)
-	}
+func TestGeneratePasswordHash(t *testing.T) {
+	password := "bellaa"
+	hash, _ := HashPassword(password) // ignore error for the sake of simplicity
+	fmt.Println("Password:", password)
+	fmt.Println("Hash:    ", hash)
+
+	match := CheckPasswordHash(password, hash)
+	fmt.Println("Match:   ", match)
+}
+func TestGeneratePrivateKeyPaseto(t *testing.T) {
+	privateKey, publicKey := watoken.GenerateKey()
+	fmt.Println(privateKey)
+	fmt.Println(publicKey)
+	hasil, err := watoken.Encode("gabril", privateKey)
+	fmt.Println(hasil, err)
 }
 
-// Insert-Tiket
+func TestHashFunction(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "keekons")
+	var userdata User
+	userdata.Username = "gabril"
+	userdata.Password = "bellaa"
+
+	filter := bson.M{"username": userdata.Username}
+	res := atdb.GetOneDoc[User](mconn, "user", filter)
+	fmt.Println("Mongo User Result: ", res)
+	hash, _ := HashPassword(userdata.Password)
+	fmt.Println("Hash Password : ", hash)
+	match := CheckPasswordHash(userdata.Password, res.Password)
+	fmt.Println("Match:   ", match)
+
+}
+
+func TestIsPasswordValid(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "keekons")
+	var userdata User
+	userdata.Username = "gabril"
+	userdata.Password = "bellaa"
+
+	anu := IsPasswordValid(mconn, "user", userdata)
+	fmt.Println(anu)
+}
+
+func TestInsertUser(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "keekons")
+	var userdata User
+	userdata.Username = "gabril"
+	userdata.Password = "bellaa"
+
+	nama := InsertUser(mconn, "user", userdata)
+	fmt.Println(nama)
+}
+
+//Insert-Tiket
+
 func TestInsertOneReservasi(t *testing.T) {
-	var doc model.Reservasi
+	var doc Reservasi
 	doc.Nama = "Gabriella"
 	doc.Notelp = "6287825683284"
 	doc.TTL = "25 Mei 2023"
@@ -47,88 +91,12 @@ func TestInsertOneReservasi(t *testing.T) {
 	}
 }
 
-type Userr struct {
-	ID    primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	Username string             `bson:"username,omitempty" json:"username,omitempty"`
-	Role  string             `bson:"role,omitempty" json:"role,omitempty"`
-}
-
 func TestGetAllDoc(t *testing.T) {
 	hasil := module.GetAllDocs(db, "user", []Userr{})
 	fmt.Println(hasil)
 }
 
-func TestInsertUser(t *testing.T) {
-	var doc model.User
-	doc.Username = "Gabriella"
-	password := "bela123"
-	salt := make([]byte, 16)
-	_, err := rand.Read(salt)
-	if err != nil {
-		t.Errorf("kesalahan server : salt")
-	} else {
-		hashedPassword := argon2.IDKey([]byte(password), salt, 1, 64*1024, 4, 32)
-		user := bson.M{
-			"username":    doc.Username,
-			"password": hex.EncodeToString(hashedPassword),
-		}
-		_, err = module.InsertOneDoc(db, "user", user)
-		if err != nil {
-			t.Errorf("gagal insert")
-		} else {
-			fmt.Println("berhasil insert")
-		}
-	}
-}
-
-func TestSignUpRegistrasi(t *testing.T) {
-	var doc model.Registrasi
-	doc.NamaLengkap = "Gabriella"
-	doc.NomorHP = "6287825683284"
-	doc.TanggalLahir = "25 Mei 2003"
-	doc.Alamat = "Wastukencana Blok 7 No 11"
-	doc.NIM = "1214027"
-	err := module.SignUpRegistrasi(db, doc)
-	if err != nil {
-		t.Errorf("Error inserting document: %v", err)
-	} else {
-		fmt.Println("Data berhasil disimpan dengan nama :", doc.NamaLengkap)
-	}
-}
-
-func TestLogIn(t *testing.T) {
-	var doc model.User
-	doc.Username = "Gabriela"
-	doc.Password = "gabril12"
-	user, err := module.LogIn(db, doc)
-	if err != nil {
-		t.Errorf("Error getting document: %v", err)
-	} else {
-		fmt.Println("Selamat datang Driver:", user)
-	}
-}
-
-func TestGeneratePrivateKeyPaseto(t *testing.T) {
-	privateKey, publicKey := module.GenerateKey()
-	fmt.Println("ini private key :", privateKey)
-	fmt.Println("ini public key :", publicKey)
-	id := "6569a026a943657839880665"
-	objectId, err := primitive.ObjectIDFromHex(id)
-	role := "registrasi"
-	if err != nil {
-		t.Fatalf("error converting id to objectID: %v", err)
-	}
-	hasil, err := module.Encode(objectId, role, privateKey)
-	fmt.Println("ini hasil :", hasil, err)
-}
-
-
-func TestWatoken(t *testing.T) {
-	body, err := module.Decode("fca3dbba6c382d6e937d33837f7428c1211e01a9928cbbbc0b86bb8351c02407", " v4.public.eyJleHAiOiIyMDIzLTEyLTAxVDE4OjU4OjE1KzA4OjAwIiwiaWF0IjoiMjAyMy0xMi0wMVQxNjo1ODoxNSswODowMCIsImlkIjoiNjU1YzNiOWExZDY1MjRmMmYxMjAwZmM2IiwibmJmIjoiMjAyMy0xMi0wMVQxNjo1ODoxNSswODowMCIsInJvbGUiOiJwZW5nZ3VuYSJ9GIKgKcp8gj4lzPH_NFvpx3GR2kBZ2qsDquYMKQdQ1PFpvHKlDy-FeO1umIGCaMuYyACP5jd-Y0at1WCOrsNRCA")
-	fmt.Println("isi : ", body, err)
-}
-
-// test Tiket
+// test reservasi
 func TestInsertReservasi(t *testing.T) {
 	conn := module.MongoConnect("MONGOSTRING", "keekons")
 	payload, err := module.Decode("fca3dbba6c382d6e937d33837f7428c1211e01a9928cbbbc0b86bb8351c02407", "v4.public.eyJleHAiOiIyMDIzLTEyLTAxVDE4OjU4OjE1KzA4OjAwIiwiaWF0IjoiMjAyMy0xMi0wMVQxNjo1ODoxNSswODowMCIsImlkIjoiNjU1YzNiOWExZDY1MjRmMmYxMjAwZmM2IiwibmJmIjoiMjAyMy0xMi0wMVQxNjo1ODoxNSswODowMCIsInJvbGUiOiJwZW5nZ3VuYSJ9GIKgKcp8gj4lzPH_NFvpx3GR2kBZ2qsDquYMKQdQ1PFpvHKlDy-FeO1umIGCaMuYyACP5jd-Y0at1WCOrsNRCA")

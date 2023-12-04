@@ -2,16 +2,14 @@ package model
 
 import (
 
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	Username string             `bson:"Username,omitempty" json:"Username,omitempty"`
-	Password string             `bson:"password,omitempty" json:"password,omitempty"`
-	Role     string             `bson:"role,omitempty" json:"role,omitempty"`
+	ID           primitive.ObjectID 	`bson:"_id,omitempty" json:"_id,omitempty"`
+	Username string `json:"username" bson:"username"`
+	Password string `json:"password" bson:"password"`
 }
 
 type Registrasi struct {
@@ -32,28 +30,15 @@ type Reservasi struct {
 	Keluhan	      string             `bson:"keluhan,omitempty" json:"keluhan,omitempty"`
 }
 
+type Credential struct {
+	Status  bool   `json:"status" bson:"status"`
+	Token   string `json:"token,omitempty" bson:"token,omitempty"`
+	Message string `json:"message,omitempty" bson:"message,omitempty"`
+}
+
 type Response struct {
 	Status  bool   `json:"status" bson:"status"`
 	Message string `json:"message,omitempty" bson:"message,omitempty"`
 }
 
-type ReservasiResponse struct {
-	Status  bool        `json:"status" bson:"status"`
-	Message string      `json:"message,omitempty" bson:"message,omitempty"`
-	Data    Reservasi   `json:"data" bson:"data"`
-}
 
-type Credential struct {
-	Status  bool   `json:"status" bson:"status"`
-	Token   string `json:"token,omitempty" bson:"token,omitempty"`
-	Message string `json:"message,omitempty" bson:"message,omitempty"`
-	Data    User   `bson:"data,omitempty" json:"data,omitempty"`
-}
-
-type Payload struct {
-	Id   primitive.ObjectID `json:"id"`
-	Role string             `json:"role"`
-	Exp  time.Time          `json:"exp"`
-	Iat  time.Time          `json:"iat"`
-	Nbf  time.Time          `json:"nbf"`
-}

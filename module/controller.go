@@ -2,12 +2,12 @@ package module
 
 import (
 	"context"
-	// "crypto/rand"
+	"crypto/rand"
 	"encoding/hex"
-	// "errors"
+	"errors"
 	"fmt"
 	"os"
-	// "strings"
+	"strings"
 
 	"github.com/bimbingankonseling/bekeekons/model"
 	"github.com/badoux/checkmail"
@@ -80,66 +80,43 @@ func DeleteOneDoc(_id primitive.ObjectID, db *mongo.Database, col string) error 
 	return nil
 }
 
-// signup
-// func SignUpRegistrasi(db *mongo.Database, insertedDoc model.Registrasi) error {
-// 	objectId := primitive.NewObjectID() 
-// 	if insertedDoc.NamaLengkap == "" || insertedDoc.NomorHP == "" || insertedDoc.TanggalLahir == "" || insertedDoc.Alamat == "" || insertedDoc.NIM == "" {
-// 		return fmt.Errorf("Dimohon untuk melengkapi data")
-// 	} 
-	
-// 	registrasi := bson.M{
-// 		"namalengkap": insertedDoc.NamaLengkap,
-// 		"nomorhp": insertedDoc.NomorHP,
-// 		"tanggallahir": insertedDoc.TanggalLahir,
-// 		"alamat": insertedDoc.Alamat,
-// 		"nim": insertedDoc.NIM,
-// 	}
-// 	_, err = InsertOneDoc(db, "user", user)
-// 	if err != nil {
-// 		return fmt.Errorf("kesalahan server")
-// 	}
-// 	_, err = InsertOneDoc(db, "registrasi", registrasi)
-// 	if err != nil {
-// 		return fmt.Errorf("kesalahan server")
-// 	}
-// 	return nil
-// }
-
 // login
-func LogIn(db *mongo.Database, insertedDoc model.User) (user model.User, err error) {
-	if insertedDoc.Username == "" || insertedDoc.Password == "" {
-		return user, fmt.Errorf("Dimohon untuk melengkapi data")
-	} 
-	if err = checkmail.ValidateFormat(insertedDoc.Username); err != nil {
-		return user, fmt.Errorf("Username tidak valid")
-	} 
-	existsDoc, err := GetUserFromEmail(insertedDoc.Username, db)
+func GCFPostHandler(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+	var Response Credential
+	Response.Status = false
+	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	var datauser User
+	err := json.NewDecoder(r.Body).Decode(&datauser)
 	if err != nil {
-		return 
-	}
-	
-	hash := argon2.IDKey([]byte(insertedDoc.Password))
-	if hex.EncodeToString(hash) != existsDoc.Password {
-		return user, fmt.Errorf("password salah")
-	}
-	return existsDoc, nil
-}
-
-func IDKey(password, salt []byte, time, memory uint32, threads uint8, keyLen uint32) []byte {
-	return deriveKey(argon2id, password, salt, nil, nil, time, memory, threads, keyLen)
-}
-
-func GetUserFromEmail(email string, db *mongo.Database) (doc model.User, err error) {
-	collection := db.Collection("user")
-	filter := bson.M{"email": email}
-	err = collection.FindOne(context.TODO(), filter).Decode(&doc)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return doc, fmt.Errorf("email tidak ditemukan")
+		Response.Message = "error parsing application/json: " + err.Error()
+	} else {
+		if IsPasswordValid(mconn, collectionname, datauser) {
+			Response.Status = true
+			tokenstring, err := watoken.Encode(datauser.Username, os.Getenv(PASETOPRIVATEKEYENV))
+			if err != nil {
+				Response.Message = "Gagal Encode Token : " + err.Error()
+			} else {
+				Response.Message = "Selamat Datang"
+				Response.Token = tokenstring
+			}
+		} else {
+			Response.Message = "Password Salah"
 		}
-		return doc, fmt.Errorf("kesalahan server")
 	}
-	return doc, nil
+
+	return GCFReturnStruct(Response)
+}
+
+func GCFReturnStruct(DataStuct any) string {
+	jsondata, _ := json.Marshal(DataStuct)
+	return string(jsondata)
+}
+
+func InsertUser(db *mongo.Database, collection string, userdata User) string {
+	hash, _ := HashPassword(userdata.Password)
+	userdata.Password = hash
+	atdb.InsertOneDoc(db, collection, userdata)
+	return "Ini username : " + userdata.Username + "ini password : " + userdata.Password
 }
 
 //Reservasi
